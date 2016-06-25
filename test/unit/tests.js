@@ -206,7 +206,8 @@
 				t.start( 0 );
 				t.update( 1000 );
 
-				test.deepEqual( obj.y, 0 );
+				test.deepEqual( obj.x, 1 );
+				test.equal( obj.y, undefined );
 				test.done();
 
 			},
@@ -280,7 +281,49 @@
 				t.start( 0 );
 				t.update( 1000 );
 
-				test.deepEqual( obj.x, 2 );
+				test.equal( obj.x, undefined );
+				test.done();
+
+			},
+
+			'Tween relative positive value, with sign': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "+100" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, 100 );
+				test.done();
+
+			},
+
+			'Tween relative negative value': function(test) {
+
+				var obj = { x: 0 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "-100" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, -100 );
+				test.done();
+
+			},
+
+			'String values without a + or - sign should not be interpreted as relative': function(test) {
+
+				var obj = { x: 100 },
+					t = new TWEEN.Tween( obj );
+
+				t.to( { x: "100" }, 1000 );
+				t.start( 0 );
+				t.update( 1000 );
+
+				test.equal( obj.x, 100 );
 				test.done();
 
 			},
@@ -290,7 +333,7 @@
 				var obj = { },
 					t = new TWEEN.Tween( obj );
 
-				t.to( { x: 2 }, 1000 );
+				t.to( { }, 1000 );
 
 				TWEEN.removeAll();
 				test.equal( TWEEN.getAll().length, 0 ); // TODO move to TWEEN test
@@ -709,7 +752,7 @@
 
 				TWEEN.removeAll();
 
-				var obj = { x: 0 },
+				var obj = { x: 0, y: 0 },
 					t = new TWEEN.Tween( obj ).to( { x: "+100", y: "-100" }, 100 ).repeat( 1 );
 
 				t.start( 0 );
@@ -839,7 +882,29 @@
 				test.equal( TWEEN.getAll().length, 0 );
 				test.done();
 
-			}
+			},
+
+			'Test TWEEN.Tween.chain progressess into chained tweens': function(test) {
+
+				var obj = { t: 1000 };
+
+				// 1000 of nothing
+				var blank = new TWEEN.Tween({}).to({}, 1000);
+
+				// tween obj.t from 1000 -> 2000 (in time with update time)
+				var next  = new TWEEN.Tween(obj).to({ t: 2000 }, 1000);
+
+				blank.chain(next).start(0);
+
+				TWEEN.update(1500);
+				test.equal(obj.t, 1500);
+
+				TWEEN.update(2000);
+				test.equal(obj.t, 2000);
+
+				test.done();
+
+			},
 
 		};
 
